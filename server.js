@@ -8,22 +8,26 @@ const path = require('path');
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
-
-// 🌟 อนุญาตให้ระบบแสดงไฟล์ PDF ที่สร้างเสร็จแล้วผ่านลิงก์ /public
 app.use('/public', express.static(__dirname));
 
 app.post('/api/concessions', async (req, res) => {
     try {
         const data = req.body;
-        
-        // 1. สร้างเลขที่เอกสาร
         const year = new Date().getFullYear();
-        const docNumber = `${data.plant}-${year}-999`; // (999 คือเลขสมมติชั่วคราว)
+        const docNumber = `${data.plant}-${year}-999`;
 
-        // 2. โหลด PDF Template และฟอนต์ภาษาไทย
-const templatePath = path.join(__dirname, 'F-MR-002_02.pdf');
-const fontPath = path.join(__dirname, '2.3.2 THSarabunNew.ttf');
-        
+        const templatePath = path.join(__dirname, 'F-MR-002_02.pdf');
+        const fontPath = path.join(__dirname, '2.3.2 THSarabunNew.ttf');
+
+        // 🔍 ตรวจสอบว่ามีไฟล์ PDF อยู่จริงไหม ถ้าไม่มีให้บอกชื่อไฟล์ทั้งหมดในโฟลเดอร์มาดู
+        if (!fs.existsSync(templatePath)) {
+            const files = fs.readdirSync(__dirname);
+            return res.status(404).json({ 
+                success: false, 
+                error: `หาไฟล์ 'F-MR-002_02.pdf' ไม่เจอ!\nไฟล์ที่มีอยู่ในระบบตอนนี้คือ: ${files.join(', ')}` 
+            });
+        }
+
         const existingPdfBytes = fs.readFileSync(templatePath);
         const fontBytes = fs.readFileSync(fontPath);
 
@@ -32,9 +36,8 @@ const fontPath = path.join(__dirname, '2.3.2 THSarabunNew.ttf');
         const customFont = await pdfDoc.embedFont(fontBytes);
         
         const pages = pdfDoc.getPages();
-        const firstPage = pages[0]; // เลือกหน้าแรก
+        const firstPage = pages[0];
 
-        // 3. เขียนข้อความลง PDF (แกน Y เริ่มนับจากล่างขึ้นบน)
         const textSize = 14;
         firstPage.drawText(docNumber, { x: 450, y: 750, size: textSize, font: customFont });
         firstPage.drawText(data.productName || '', { x: 150, y: 700, size: textSize, font: customFont });
@@ -43,33 +46,25 @@ const fontPath = path.join(__dirname, '2.3.2 THSarabunNew.ttf');
         firstPage.drawText(data.purpose || '', { x: 120, y: 650, size: textSize, font: customFont });
         firstPage.drawText(data.requesterName || '', { x: 150, y: 250, size: textSize, font: customFont });
 
-        // 4. แปะรูปลายเซ็น (ถ้ามีการเซ็นมา)
         if (data.requesterSignature) {
             const base64Data = data.requesterSignature.replace(/^data:image\/png;base64,/, "");
             const signatureImageBytes = Buffer.from(base64Data, 'base64');
             const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
             
-            // ปรับพิกัด x, y และขนาด width, height ให้ตรงกับช่องลายเซ็นผู้ร้องขอ
-            firstPage.drawImage(signatureImage, {
-                x: 120,
-                y: 270, 
-                width: 100,
-                height: 40,
-            });
+            firstPage.drawImage(signatureImage, { x: 120, y: 270, width: 100, height: 40 });
         }
 
-        // 5. บันทึกและสร้างเป็นไฟล์ PDF ใหม่
         const pdfBytes = await pdfDoc.save();
         const outputPath = path.join(__dirname, `${docNumber}.pdf`);
         fs.writeFileSync(outputPath, pdfBytes);
 
-        // 6. 🌟 สร้างลิงก์ดาวน์โหลดและส่งผลลัพธ์กลับไปให้หน้าเว็บ
         const pdfLink = `${req.protocol}://${req.get('host')}/public/${docNumber}.pdf`;
         res.json({ success: true, documentNumber: docNumber, pdfUrl: pdfLink });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, error: error.message });
+        const files = fs.readdirSync(__dirname);
+        res.status(500).json({ success: false, error: `${error.message}\nไฟล์ที่มี: ${files.join(', ')}` });
     }
 });
 
