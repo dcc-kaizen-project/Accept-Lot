@@ -19,12 +19,12 @@ app.post('/api/concessions', async (req, res) => {
         const templatePath = path.join(__dirname, 'F-MR-002_02 .pdf');
         const fontPath = path.join(__dirname, '2.3.2 THSarabunNew.ttf');
 
-        // 🔍 ตรวจสอบว่ามีไฟล์ PDF อยู่จริงไหม ถ้าไม่มีให้บอกชื่อไฟล์ทั้งหมดในโฟลเดอร์มาดู
+        // 🔍 ตรวจสอบว่ามีไฟล์ PDF อยู่จริงไหม
         if (!fs.existsSync(templatePath)) {
             const files = fs.readdirSync(__dirname);
             return res.status(404).json({ 
                 success: false, 
-                error: `หาไฟล์ 'F-MR-002_02.pdf' ไม่เจอ!\nไฟล์ที่มีอยู่ในระบบตอนนี้คือ: ${files.join(', ')}` 
+                error: `หาไฟล์ 'F-MR-002_02 .pdf' ไม่เจอ!\nไฟล์ที่มีอยู่ในระบบตอนนี้คือ: ${files.join(', ')}` 
             });
         }
 
@@ -38,7 +38,6 @@ app.post('/api/concessions', async (req, res) => {
         const pages = pdfDoc.getPages();
         const firstPage = pages[0];
 
-        const textSize = 14;
         // ----------------- ปรับตำแหน่งพิกัด (X, Y) -----------------
         const textSize = 14;
         
@@ -73,7 +72,9 @@ app.post('/api/concessions', async (req, res) => {
                 height: 40 
             });
         }
-        // ------------------------------------------------------------        const pdfBytes = await pdfDoc.save();
+        // ------------------------------------------------------------
+        
+        const pdfBytes = await pdfDoc.save();
         const outputPath = path.join(__dirname, `${docNumber}.pdf`);
         fs.writeFileSync(outputPath, pdfBytes);
 
