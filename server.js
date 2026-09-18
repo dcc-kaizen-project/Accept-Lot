@@ -36,7 +36,7 @@ app.post('/api/concessions', async (req, res) => {
         const textSize = 14;
         
         // 1. ขยับเลขที่เอกสารลงมาให้ตรงช่อง No. มากขึ้น
-        firstPage.drawText(docNumber, { x: 480, y: 765, size: textSize, font: customFont });
+        firstPage.drawText(docNumber, { x: 480, y: 775, size: textSize, font: customFont });
         
         // 2. ชื่อผลิตภัณฑ์ & จำนวน
         firstPage.drawText(data.productName || '', { x: 180, y: 742, size: textSize, font: customFont });
