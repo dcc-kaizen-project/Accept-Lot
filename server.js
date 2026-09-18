@@ -16,7 +16,7 @@ app.post('/api/concessions', async (req, res) => {
         const year = new Date().getFullYear();
         const docNumber = `${data.plant}-${year}-999`;
 
-        const templatePath = path.join(__dirname, 'F-MR-002_02.pdf');
+        const templatePath = path.join(__dirname, 'F-MR-002_02 .pdf');
         const fontPath = path.join(__dirname, '2.3.2 THSarabunNew.ttf');
 
         // 🔍 ตรวจสอบว่ามีไฟล์ PDF อยู่จริงไหม ถ้าไม่มีให้บอกชื่อไฟล์ทั้งหมดในโฟลเดอร์มาดู
