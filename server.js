@@ -19,8 +19,13 @@ app.post('/api/concessions', async (req, res) => {
         const templatePath = path.join(__dirname, 'F-MR-002_02 .pdf');
         const fontPath = path.join(__dirname, '2.3.2 THSarabunNew.ttf');
 
+        // ตรวจสอบไฟล์
         if (!fs.existsSync(templatePath)) {
-            return res.status(404).json({ success: false, error: `หาไฟล์แม่แบบ PDF ไม่เจอ` });
+            const files = fs.readdirSync(__dirname);
+            return res.status(404).json({ 
+                success: false, 
+                error: `หาไฟล์ 'F-MR-002_02 .pdf' ไม่เจอ!\nไฟล์ที่มีอยู่ในระบบตอนนี้คือ: ${files.join(', ')}` 
+            });
         }
 
         const existingPdfBytes = fs.readFileSync(templatePath);
@@ -33,33 +38,27 @@ app.post('/api/concessions', async (req, res) => {
         const pages = pdfDoc.getPages();
         const firstPage = pages[0];
 
+        // ----------------- ตำแหน่งพิกัด (X, Y) ที่ปรับล่าสุด -----------------
         const textSize = 14;
         
-        // 1. ขยับเลขที่เอกสารลงมาให้ตรงช่อง No. มากขึ้น
-        firstPage.drawText(docNumber, { x: 480, y: 775, size: textSize, font: customFont });
-        
-        // 2. ชื่อผลิตภัณฑ์ & จำนวน
-        // ----------------- ปรับตำแหน่งพิกัด (X, Y) -----------------
-        const textSize = 14;
-        
-        // 1. เลขที่เอกสาร
+        // 1. เลขที่เอกสาร (ขยับแกน Y ลงมาตรงกลางช่อง)
         firstPage.drawText(docNumber, { x: 480, y: 765, size: textSize, font: customFont });
         
-        // 2. ชื่อผลิตภัณฑ์ & จำนวน (ลด x ลงเหลือ 140 ให้ขยับมาทางซ้ายใกล้เส้น)
+        // 2. ชื่อผลิตภัณฑ์ (ขยับแกน X มาซ้าย) & จำนวน
         firstPage.drawText(data.productName || '', { x: 140, y: 742, size: textSize, font: customFont });
         firstPage.drawText(String(data.quantity || ''), { x: 460, y: 742, size: textSize, font: customFont });
         
-        // 3. Lot ผลิต & ชื่อหน่วยงาน (ลด x ลงเหลือ 140 ให้ตรงกับชื่อผลิตภัณฑ์)
+        // 3. Lot ผลิต (ขยับแกน X มาซ้าย) & ชื่อหน่วยงาน
         firstPage.drawText(data.lotNumber || '', { x: 140, y: 723, size: textSize, font: customFont });
         firstPage.drawText(data.department || '', { x: 460, y: 723, size: textSize, font: customFont });
         
-        // 4. เหตุผลในการปฏิเสธลอต (เพิ่ม x เป็น 100 ให้ขยับเข้าขวา ไม่หลุดเส้นบรรทัด)
+        // 4. เหตุผลในการปฏิเสธลอต (ขยับแกน X เข้าขวาให้พ้นเส้น)
         firstPage.drawText(data.rejectionReason || '', { x: 100, y: 690, size: textSize, font: customFont });
         
-        // 5. วัตถุประสงค์ (เพิ่ม x เป็น 100 ให้ขยับเข้าขวา ไม่หลุดเส้นบรรทัด)
+        // 5. วัตถุประสงค์ (ขยับแกน X เข้าขวาให้พ้นเส้น)
         firstPage.drawText(data.purpose || '', { x: 100, y: 640, size: textSize, font: customFont });
         
-        // 6. หัวข้อปัญหา (เพิ่ม x เป็น 120 ให้ขยับขวา พ้นระยะของตัวเลข 1) 2) 3) )
+        // 6. หัวข้อปัญหา (ขยับแกน X เข้าขวาให้พ้นตัวเลข 1) 2) )
         if (data.issues) {
             const issueLines = data.issues.split('\n');
             let startY = 540;
@@ -80,19 +79,8 @@ app.post('/api/concessions', async (req, res) => {
             
             firstPage.drawImage(signatureImage, { x: 90, y: 220, width: 100, height: 40 });
         }
-        // ------------------------------------------------------------
-        }
-        
-        // 7. ชื่อผู้ร้องขอ และ ลายเซ็น
-        firstPage.drawText(data.requesterName || '', { x: 100, y: 200, size: textSize, font: customFont });
-        if (data.requesterSignature) {
-            const base64Data = data.requesterSignature.replace(/^data:image\/png;base64,/, "");
-            const signatureImageBytes = Buffer.from(base64Data, 'base64');
-            const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
-            
-            firstPage.drawImage(signatureImage, { x: 90, y: 220, width: 100, height: 40 });
-        }
-        
+        // ----------------------------------------------------------------
+
         const pdfBytes = await pdfDoc.save();
         const outputPath = path.join(__dirname, `${docNumber}.pdf`);
         fs.writeFileSync(outputPath, pdfBytes);
@@ -102,7 +90,8 @@ app.post('/api/concessions', async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, error: error.message });
+        const files = fs.readdirSync(__dirname);
+        res.status(500).json({ success: false, error: `${error.message}\nไฟล์ที่มี: ${files.join(', ')}` });
     }
 });
 
