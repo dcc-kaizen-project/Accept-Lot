@@ -51,10 +51,10 @@ app.post('/api/concessions', async (req, res) => {
         firstPage.drawText(data.lotNumber || '', { x: 140, y: 723, size: textSize, font: customFont });
         firstPage.drawText(data.department || '', { x: 460, y: 723, size: textSize, font: customFont });
         
-        // 4. เหตุผลในการปฏิเสธลอต (ลด x เหลือ 85 ขยับไปข้างหน้า/ทางซ้าย)
+        // 4. เหตุผลในการปฏิเสธลอต (ลด x เหลือ 70 ขยับไปข้างหน้า/ทางซ้าย)
         firstPage.drawText(data.rejectionReason || '', { x: 70, y: 690, size: textSize, font: customFont });
         
-        // 5. วัตถุประสงค์ (ลด x เหลือ 85 ขยับไปข้างหน้า/ทางซ้าย)
+        // 5. วัตถุประสงค์ (ลด x เหลือ 70 ขยับไปข้างหน้า/ทางซ้าย)
         firstPage.drawText(data.purpose || '', { x: 70, y: 640, size: textSize, font: customFont });
         
         // 6. หัวข้อปัญหา
