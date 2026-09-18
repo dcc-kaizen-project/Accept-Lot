@@ -51,11 +51,11 @@ app.post('/api/concessions', async (req, res) => {
         firstPage.drawText(data.lotNumber || '', { x: 140, y: 723, size: textSize, font: customFont });
         firstPage.drawText(data.department || '', { x: 460, y: 723, size: textSize, font: customFont });
         
-        // 4. เหตุผลในการปฏิเสธลอต (ลด x เหลือ 70 ขยับไปข้างหน้า/ทางซ้าย)
-        firstPage.drawText(data.rejectionReason || '', { x: 70, y: 690, size: textSize, font: customFont });
+        // 4. เหตุผลในการปฏิเสธลอต (ลด x เหลือ 60 ขยับไปข้างหน้า/ทางซ้าย)
+        firstPage.drawText(data.rejectionReason || '', { x: 60, y: 690, size: textSize, font: customFont });
         
-        // 5. วัตถุประสงค์ (ลด x เหลือ 70 ขยับไปข้างหน้า/ทางซ้าย)
-        firstPage.drawText(data.purpose || '', { x: 70, y: 640, size: textSize, font: customFont });
+        // 5. วัตถุประสงค์ (ลด x เหลือ 60 ขยับไปข้างหน้า/ทางซ้าย)
+        firstPage.drawText(data.purpose || '', { x: 60, y: 640, size: textSize, font: customFont });
         
         // 6. หัวข้อปัญหา
         if (data.issues) {
@@ -63,7 +63,7 @@ app.post('/api/concessions', async (req, res) => {
             let startY = 540;
             issueLines.forEach((line, index) => {
                 if (index < 8 && line.trim() !== '') {
-                    firstPage.drawText(line.trim(), { x: 90, y: startY, size: textSize, font: customFont });
+                    firstPage.drawText(line.trim(), { x: 70, y: startY, size: textSize, font: customFont });
                     startY -= 18;
                 }
             });
