@@ -9,13 +9,16 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
+// 🌟 อนุญาตให้ระบบแสดงไฟล์ PDF ที่สร้างเสร็จแล้วผ่านลิงก์ /public
+app.use('/public', express.static(__dirname));
+
 app.post('/api/concessions', async (req, res) => {
     try {
         const data = req.body;
         
         // 1. สร้างเลขที่เอกสาร
         const year = new Date().getFullYear();
-        const docNumber = `${data.plant}-${year}-999`; // (999 คือเลขสมมติ เดี๋ยวเรามาเชื่อม DB นับเลขจริงภายหลัง)
+        const docNumber = `${data.plant}-${year}-999`; // (999 คือเลขสมมติชั่วคราว)
 
         // 2. โหลด PDF Template และฟอนต์ภาษาไทย
         const templatePath = path.join(__dirname, 'F-MR-002_Template.pdf');
@@ -31,14 +34,14 @@ app.post('/api/concessions', async (req, res) => {
         const pages = pdfDoc.getPages();
         const firstPage = pages[0]; // เลือกหน้าแรก
 
-        // 3. เขียนข้อความลง PDF (แกน Y ของ PDF เริ่มนับจากขอบล่างของกระดาษขึ้นบน)
+        // 3. เขียนข้อความลง PDF (แกน Y เริ่มนับจากล่างขึ้นบน)
         const textSize = 14;
         firstPage.drawText(docNumber, { x: 450, y: 750, size: textSize, font: customFont });
-        firstPage.drawText(data.productName, { x: 150, y: 700, size: textSize, font: customFont });
-        firstPage.drawText(data.lotNumber, { x: 150, y: 680, size: textSize, font: customFont });
-        firstPage.drawText(String(data.quantity), { x: 450, y: 700, size: textSize, font: customFont });
-        firstPage.drawText(data.purpose, { x: 120, y: 650, size: textSize, font: customFont });
-        firstPage.drawText(data.requesterName, { x: 150, y: 250, size: textSize, font: customFont });
+        firstPage.drawText(data.productName || '', { x: 150, y: 700, size: textSize, font: customFont });
+        firstPage.drawText(data.lotNumber || '', { x: 150, y: 680, size: textSize, font: customFont });
+        firstPage.drawText(String(data.quantity || ''), { x: 450, y: 700, size: textSize, font: customFont });
+        firstPage.drawText(data.purpose || '', { x: 120, y: 650, size: textSize, font: customFont });
+        firstPage.drawText(data.requesterName || '', { x: 150, y: 250, size: textSize, font: customFont });
 
         // 4. แปะรูปลายเซ็น (ถ้ามีการเซ็นมา)
         if (data.requesterSignature) {
@@ -46,7 +49,7 @@ app.post('/api/concessions', async (req, res) => {
             const signatureImageBytes = Buffer.from(base64Data, 'base64');
             const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
             
-            // ปรับพิกัด x, y และขนาด width, height ให้ตรงกับช่องลายเซ็นผู้ร้องขอในแบบฟอร์ม
+            // ปรับพิกัด x, y และขนาด width, height ให้ตรงกับช่องลายเซ็นผู้ร้องขอ
             firstPage.drawImage(signatureImage, {
                 x: 120,
                 y: 270, 
@@ -60,8 +63,9 @@ app.post('/api/concessions', async (req, res) => {
         const outputPath = path.join(__dirname, `${docNumber}.pdf`);
         fs.writeFileSync(outputPath, pdfBytes);
 
-        // ส่งผลลัพธ์กลับไปให้หน้าเว็บ Vercel
-        res.json({ success: true, documentNumber: docNumber });
+        // 6. 🌟 สร้างลิงก์ดาวน์โหลดและส่งผลลัพธ์กลับไปให้หน้าเว็บ
+        const pdfLink = `${req.protocol}://${req.get('host')}/public/${docNumber}.pdf`;
+        res.json({ success: true, documentNumber: docNumber, pdfUrl: pdfLink });
 
     } catch (error) {
         console.error(error);
