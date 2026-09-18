@@ -39,30 +39,48 @@ app.post('/api/concessions', async (req, res) => {
         firstPage.drawText(docNumber, { x: 480, y: 775, size: textSize, font: customFont });
         
         // 2. ชื่อผลิตภัณฑ์ & จำนวน
-        firstPage.drawText(data.productName || '', { x: 180, y: 742, size: textSize, font: customFont });
+        // ----------------- ปรับตำแหน่งพิกัด (X, Y) -----------------
+        const textSize = 14;
+        
+        // 1. เลขที่เอกสาร
+        firstPage.drawText(docNumber, { x: 480, y: 765, size: textSize, font: customFont });
+        
+        // 2. ชื่อผลิตภัณฑ์ & จำนวน (ลด x ลงเหลือ 140 ให้ขยับมาทางซ้ายใกล้เส้น)
+        firstPage.drawText(data.productName || '', { x: 140, y: 742, size: textSize, font: customFont });
         firstPage.drawText(String(data.quantity || ''), { x: 460, y: 742, size: textSize, font: customFont });
         
-        // 3. Lot ผลิต & ชื่อหน่วยงาน
-        firstPage.drawText(data.lotNumber || '', { x: 180, y: 723, size: textSize, font: customFont });
-        firstPage.drawText(data.department || '', { x: 460, y: 723, size: textSize, font: customFont }); // เพิ่มหน่วยงาน
+        // 3. Lot ผลิต & ชื่อหน่วยงาน (ลด x ลงเหลือ 140 ให้ตรงกับชื่อผลิตภัณฑ์)
+        firstPage.drawText(data.lotNumber || '', { x: 140, y: 723, size: textSize, font: customFont });
+        firstPage.drawText(data.department || '', { x: 460, y: 723, size: textSize, font: customFont });
         
-        // 4. เหตุผลในการปฏิเสธลอต
-        firstPage.drawText(data.rejectionReason || '', { x: 80, y: 690, size: textSize, font: customFont }); // เพิ่มเหตุผลปฏิเสธ
+        // 4. เหตุผลในการปฏิเสธลอต (เพิ่ม x เป็น 100 ให้ขยับเข้าขวา ไม่หลุดเส้นบรรทัด)
+        firstPage.drawText(data.rejectionReason || '', { x: 100, y: 690, size: textSize, font: customFont });
         
-        // 5. วัตถุประสงค์ (ช่องรายละเอียดในการร้องขอ)
-        firstPage.drawText(data.purpose || '', { x: 80, y: 640, size: textSize, font: customFont });
+        // 5. วัตถุประสงค์ (เพิ่ม x เป็น 100 ให้ขยับเข้าขวา ไม่หลุดเส้นบรรทัด)
+        firstPage.drawText(data.purpose || '', { x: 100, y: 640, size: textSize, font: customFont });
         
-        // 6. หัวข้อปัญหา (แยกบรรทัดให้อัตโนมัติ สูงสุด 8 ข้อ)
+        // 6. หัวข้อปัญหา (เพิ่ม x เป็น 120 ให้ขยับขวา พ้นระยะของตัวเลข 1) 2) 3) )
         if (data.issues) {
-            const issueLines = data.issues.split('\n'); // ตัดคำเมื่อผู้ใช้กด Enter
-            let startY = 540; // พิกัด Y เริ่มต้นของข้อ 1)
+            const issueLines = data.issues.split('\n');
+            let startY = 540;
             issueLines.forEach((line, index) => {
                 if (index < 8 && line.trim() !== '') {
-                    // วางข้อความหลังตัวเลข 1) 2) 3)
-                    firstPage.drawText(line.trim(), { x: 100, y: startY, size: textSize, font: customFont });
-                    startY -= 18; // ขยับบรรทัดลงมาทีละ 18 พิกเซลสำหรับข้อถัดไป
+                    firstPage.drawText(line.trim(), { x: 120, y: startY, size: textSize, font: customFont });
+                    startY -= 18;
                 }
             });
+        }
+        
+        // 7. ชื่อผู้ร้องขอ และ ลายเซ็น
+        firstPage.drawText(data.requesterName || '', { x: 100, y: 200, size: textSize, font: customFont });
+        if (data.requesterSignature) {
+            const base64Data = data.requesterSignature.replace(/^data:image\/png;base64,/, "");
+            const signatureImageBytes = Buffer.from(base64Data, 'base64');
+            const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
+            
+            firstPage.drawImage(signatureImage, { x: 90, y: 220, width: 100, height: 40 });
+        }
+        // ------------------------------------------------------------
         }
         
         // 7. ชื่อผู้ร้องขอ และ ลายเซ็น
