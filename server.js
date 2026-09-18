@@ -19,7 +19,6 @@ app.post('/api/concessions', async (req, res) => {
         const templatePath = path.join(__dirname, 'F-MR-002_02 .pdf');
         const fontPath = path.join(__dirname, '2.3.2 THSarabunNew.ttf');
 
-        // ตรวจสอบไฟล์
         if (!fs.existsSync(templatePath)) {
             const files = fs.readdirSync(__dirname);
             return res.status(404).json({ 
@@ -38,27 +37,27 @@ app.post('/api/concessions', async (req, res) => {
         const pages = pdfDoc.getPages();
         const firstPage = pages[0];
 
-        // ----------------- ตำแหน่งพิกัด (X, Y) ที่ปรับล่าสุด -----------------
+        // ----------------- ตำแหน่งพิกัด (X, Y) -----------------
         const textSize = 14;
         
-        // 1. เลขที่เอกสาร (ขยับแกน Y ลงมาตรงกลางช่อง)
-        firstPage.drawText(docNumber, { x: 480, y: 765, size: textSize, font: customFont });
+        // 1. เลขที่เอกสาร (ขยับแกน Y ลง และแกน X ไปซ้ายนิดหน่อย)
+        firstPage.drawText(docNumber, { x: 470, y: 760, size: textSize, font: customFont });
         
-        // 2. ชื่อผลิตภัณฑ์ (ขยับแกน X มาซ้าย) & จำนวน
+        // 2. ชื่อผลิตภัณฑ์ & จำนวน
         firstPage.drawText(data.productName || '', { x: 140, y: 742, size: textSize, font: customFont });
         firstPage.drawText(String(data.quantity || ''), { x: 460, y: 742, size: textSize, font: customFont });
         
-        // 3. Lot ผลิต (ขยับแกน X มาซ้าย) & ชื่อหน่วยงาน
+        // 3. Lot ผลิต & ชื่อหน่วยงาน
         firstPage.drawText(data.lotNumber || '', { x: 140, y: 723, size: textSize, font: customFont });
         firstPage.drawText(data.department || '', { x: 460, y: 723, size: textSize, font: customFont });
         
-        // 4. เหตุผลในการปฏิเสธลอต (ขยับแกน X เข้าขวาให้พ้นเส้น)
-        firstPage.drawText(data.rejectionReason || '', { x: 100, y: 690, size: textSize, font: customFont });
+        // 4. เหตุผลในการปฏิเสธลอต (ลด x เหลือ 85 ขยับไปข้างหน้า/ทางซ้าย)
+        firstPage.drawText(data.rejectionReason || '', { x: 85, y: 690, size: textSize, font: customFont });
         
-        // 5. วัตถุประสงค์ (ขยับแกน X เข้าขวาให้พ้นเส้น)
-        firstPage.drawText(data.purpose || '', { x: 100, y: 640, size: textSize, font: customFont });
+        // 5. วัตถุประสงค์ (ลด x เหลือ 85 ขยับไปข้างหน้า/ทางซ้าย)
+        firstPage.drawText(data.purpose || '', { x: 85, y: 640, size: textSize, font: customFont });
         
-        // 6. หัวข้อปัญหา (ขยับแกน X เข้าขวาให้พ้นตัวเลข 1) 2) )
+        // 6. หัวข้อปัญหา
         if (data.issues) {
             const issueLines = data.issues.split('\n');
             let startY = 540;
