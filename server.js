@@ -41,7 +41,7 @@ app.post('/api/concessions', async (req, res) => {
         const textSize = 14;
         
         // 1. เลขที่เอกสาร (ขยับแกน Y ลง และแกน X ไปซ้ายนิดหน่อย)
-        firstPage.drawText(docNumber, { x: 470, y: 760, size: textSize, font: customFont });
+        firstPage.drawText(docNumber, { x: 470, y: 775, size: textSize, font: customFont });
         
         // 2. ชื่อผลิตภัณฑ์ & จำนวน
         firstPage.drawText(data.productName || '', { x: 140, y: 742, size: textSize, font: customFont });
@@ -52,10 +52,10 @@ app.post('/api/concessions', async (req, res) => {
         firstPage.drawText(data.department || '', { x: 460, y: 723, size: textSize, font: customFont });
         
         // 4. เหตุผลในการปฏิเสธลอต (ลด x เหลือ 85 ขยับไปข้างหน้า/ทางซ้าย)
-        firstPage.drawText(data.rejectionReason || '', { x: 85, y: 690, size: textSize, font: customFont });
+        firstPage.drawText(data.rejectionReason || '', { x: 70, y: 690, size: textSize, font: customFont });
         
         // 5. วัตถุประสงค์ (ลด x เหลือ 85 ขยับไปข้างหน้า/ทางซ้าย)
-        firstPage.drawText(data.purpose || '', { x: 85, y: 640, size: textSize, font: customFont });
+        firstPage.drawText(data.purpose || '', { x: 70, y: 640, size: textSize, font: customFont });
         
         // 6. หัวข้อปัญหา
         if (data.issues) {
@@ -63,7 +63,7 @@ app.post('/api/concessions', async (req, res) => {
             let startY = 540;
             issueLines.forEach((line, index) => {
                 if (index < 8 && line.trim() !== '') {
-                    firstPage.drawText(line.trim(), { x: 120, y: startY, size: textSize, font: customFont });
+                    firstPage.drawText(line.trim(), { x: 90, y: startY, size: textSize, font: customFont });
                     startY -= 18;
                 }
             });
