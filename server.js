@@ -21,8 +21,8 @@ app.post('/api/concessions', async (req, res) => {
         const docNumber = `${data.plant}-${year}-999`; // (999 คือเลขสมมติชั่วคราว)
 
         // 2. โหลด PDF Template และฟอนต์ภาษาไทย
-        const templatePath = path.join(__dirname, 'F-MR-002_Template.pdf');
-        const fontPath = path.join(__dirname, 'THSarabunNew.ttf');
+const templatePath = path.join(__dirname, 'F-MR-002_02.pdf');
+const fontPath = path.join(__dirname, '2.3.2 THSarabunNew.ttf');
         
         const existingPdfBytes = fs.readFileSync(templatePath);
         const fontBytes = fs.readFileSync(fontPath);
