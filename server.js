@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 // นำ URL ที่ได้จาก Google Apps Script มาใส่ตรงนี้ครับ
-const GOOGLE_SCRIPT_URL = 'ใส่_URL_ที่ก๊อปปี้มาจาก_APPS_SCRIPT_ตรงนี้';
+const GOOGLE_SCRIPT_URL = https://script.google.com/macros/s/AKfycbyG1M1F1HEVLw1bck9FftaV8sCnnBiurMUIkoalccozFh20KicUQnVX73rTcfzg1_MenA/exec;
 
 const app = express();
 app.use(cors());
