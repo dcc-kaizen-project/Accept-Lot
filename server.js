@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 
 // ⚠️ ใส่ Web App URL อันล่าสุดของคุณตรงนี้
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwKYSj9Gw25U9RQ-VNYtsAtZyRkOOUM0EHgd-OMBhJFwVkhv7wbIX7OYEGfTjjMfNg7-A/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxo8oo-JRvHx7CVSrBgSPxA4YAY0v_QtgTpW5psEV8E71PZ6_x0oIKVmHs14S-yw_fLYw/exec';
 
 const app = express();
 app.use(cors());
