@@ -40,14 +40,14 @@ app.post('/api/concessions', async (req, res) => {
         // ----------------- ตำแหน่งพิกัด (X, Y) -----------------
         const textSize = 14;
         
-        // 1. เลขที่เอกสาร 
-        firstPage.drawText(docNumber, { x: 470, y: 760, size: textSize, font: customFont });
+        // 1. เลขที่เอกสาร (ปรับ Y เป็น 770 เพื่อขยับขึ้นบน)
+        firstPage.drawText(docNumber, { x: 470, y: 770, size: textSize, font: customFont });
         
         // 2. ชื่อผลิตภัณฑ์ & จำนวน
         firstPage.drawText(data.productName || '', { x: 140, y: 742, size: textSize, font: customFont });
         firstPage.drawText(String(data.quantity || ''), { x: 460, y: 742, size: textSize, font: customFont });
         
-        // 3. Lot ผลิต (ขยายเป็น 35 ตัวอักษรถึงจะตัดบรรทัด)
+        // 3. Lot ผลิต 
         const lotText = data.lotNumber || '';
         if (lotText.length > 35) {
             firstPage.drawText(lotText.substring(0, 38), { x: 140, y: 730, size: 12, font: customFont });
@@ -56,22 +56,23 @@ app.post('/api/concessions', async (req, res) => {
             firstPage.drawText(lotText, { x: 140, y: 723, size: textSize, font: customFont });
         }
 
-        // --- เพิ่มช่องหน่วยงานกลับมาแล้วครับ ---
+        // หน่วยงาน
         firstPage.drawText(data.department || '', { x: 460, y: 723, size: textSize, font: customFont });
         
-        // 4. เหตุผลในการปฏิเสธลอต (x: 70 ชิดซ้าย)
+        // 4. เหตุผลในการปฏิเสธลอต 
         firstPage.drawText(data.rejectionReason || '', { x: 70, y: 690, size: textSize, font: customFont });
         
-        // 5. วัตถุประสงค์ (x: 70 ชิดซ้าย)
+        // 5. วัตถุประสงค์ 
         firstPage.drawText(data.purpose || '', { x: 70, y: 640, size: textSize, font: customFont });
         
-        // 6. หัวข้อปัญหา (x: 100 ชิดซ้ายเข้ามาหาตัวเลข 1, 2)
+        // 6. หัวข้อปัญหา
         if (data.issues) {
             const issueLines = data.issues.split('\n');
             let startY = 540;
             issueLines.forEach((line, index) => {
                 if (index < 8 && line.trim() !== '') {
-                    firstPage.drawText(line.trim(), { x: 100, y: startY, size: textSize, font: customFont });
+                    // ปรับ X เป็น 85 เพื่อขยับข้อความไปทางซ้าย (ชิดตัวเลข 1, 2, 3 มากขึ้น)
+                    firstPage.drawText(line.trim(), { x: 85, y: startY, size: textSize, font: customFont });
                     startY -= 18;
                 }
             });
