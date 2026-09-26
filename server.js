@@ -40,37 +40,38 @@ app.post('/api/concessions', async (req, res) => {
         // ----------------- ตำแหน่งพิกัด (X, Y) -----------------
         const textSize = 14;
         
-        // 1. เลขที่เอกสาร (ขยับแกน Y ลง และแกน X ไปซ้ายนิดหน่อย)
-        firstPage.drawText(docNumber, { x: 470, y: 775, size: textSize, font: customFont });
+        // 1. เลขที่เอกสาร 
+        firstPage.drawText(docNumber, { x: 470, y: 760, size: textSize, font: customFont });
         
         // 2. ชื่อผลิตภัณฑ์ & จำนวน
         firstPage.drawText(data.productName || '', { x: 140, y: 742, size: textSize, font: customFont });
         firstPage.drawText(String(data.quantity || ''), { x: 460, y: 742, size: textSize, font: customFont });
         
-        // 3. Lot ผลิต (เช็คความยาว ถ้ามีหลาย Lot ให้ลดฟอนต์และแบ่งบรรทัด)
-const lotText = data.lotNumber || '';
-if (lotText.length > 20) {
-    // ถ้าข้อความยาวเกิน 20 ตัวอักษร ให้ลดฟอนต์เหลือ 11 และขยับแกน Y เพื่อซ้อน 2 บรรทัด
-    firstPage.drawText(lotText.substring(0, 22), { x: 140, y: 730, size: 11, font: customFont });
-    firstPage.drawText(lotText.substring(22, 45), { x: 140, y: 718, size: 11, font: customFont });
-} else {
-    // ถ้าสั้นปกติ ใช้ฟอนต์ 14 เหมือนเดิม
-    firstPage.drawText(lotText, { x: 140, y: 723, size: textSize, font: customFont });
-}
+        // 3. Lot ผลิต (ขยายเป็น 35 ตัวอักษรถึงจะตัดบรรทัด)
+        const lotText = data.lotNumber || '';
+        if (lotText.length > 35) {
+            firstPage.drawText(lotText.substring(0, 38), { x: 140, y: 730, size: 12, font: customFont });
+            firstPage.drawText(lotText.substring(38, 76), { x: 140, y: 715, size: 12, font: customFont });
+        } else {
+            firstPage.drawText(lotText, { x: 140, y: 723, size: textSize, font: customFont });
+        }
+
+        // --- เพิ่มช่องหน่วยงานกลับมาแล้วครับ ---
+        firstPage.drawText(data.department || '', { x: 460, y: 723, size: textSize, font: customFont });
         
-        // 4. เหตุผลในการปฏิเสธลอต (ลด x เหลือ 60 ขยับไปข้างหน้า/ทางซ้าย)
-        firstPage.drawText(data.rejectionReason || '', { x: 60, y: 690, size: textSize, font: customFont });
+        // 4. เหตุผลในการปฏิเสธลอต (x: 70 ชิดซ้าย)
+        firstPage.drawText(data.rejectionReason || '', { x: 70, y: 690, size: textSize, font: customFont });
         
-        // 5. วัตถุประสงค์ (ลด x เหลือ 60 ขยับไปข้างหน้า/ทางซ้าย)
-        firstPage.drawText(data.purpose || '', { x: 60, y: 640, size: textSize, font: customFont });
+        // 5. วัตถุประสงค์ (x: 70 ชิดซ้าย)
+        firstPage.drawText(data.purpose || '', { x: 70, y: 640, size: textSize, font: customFont });
         
-        // 6. หัวข้อปัญหา
+        // 6. หัวข้อปัญหา (x: 100 ชิดซ้ายเข้ามาหาตัวเลข 1, 2)
         if (data.issues) {
             const issueLines = data.issues.split('\n');
             let startY = 540;
             issueLines.forEach((line, index) => {
                 if (index < 8 && line.trim() !== '') {
-                    firstPage.drawText(line.trim(), { x: 70, y: startY, size: textSize, font: customFont });
+                    firstPage.drawText(line.trim(), { x: 100, y: startY, size: textSize, font: customFont });
                     startY -= 18;
                 }
             });
