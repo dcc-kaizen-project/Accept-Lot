@@ -47,9 +47,16 @@ app.post('/api/concessions', async (req, res) => {
         firstPage.drawText(data.productName || '', { x: 140, y: 742, size: textSize, font: customFont });
         firstPage.drawText(String(data.quantity || ''), { x: 460, y: 742, size: textSize, font: customFont });
         
-        // 3. Lot ผลิต & ชื่อหน่วยงาน
-        firstPage.drawText(data.lotNumber || '', { x: 140, y: 723, size: textSize, font: customFont });
-        firstPage.drawText(data.department || '', { x: 460, y: 723, size: textSize, font: customFont });
+        // 3. Lot ผลิต (เช็คความยาว ถ้ามีหลาย Lot ให้ลดฟอนต์และแบ่งบรรทัด)
+const lotText = data.lotNumber || '';
+if (lotText.length > 20) {
+    // ถ้าข้อความยาวเกิน 20 ตัวอักษร ให้ลดฟอนต์เหลือ 11 และขยับแกน Y เพื่อซ้อน 2 บรรทัด
+    firstPage.drawText(lotText.substring(0, 22), { x: 140, y: 730, size: 11, font: customFont });
+    firstPage.drawText(lotText.substring(22, 45), { x: 140, y: 718, size: 11, font: customFont });
+} else {
+    // ถ้าสั้นปกติ ใช้ฟอนต์ 14 เหมือนเดิม
+    firstPage.drawText(lotText, { x: 140, y: 723, size: textSize, font: customFont });
+}
         
         // 4. เหตุผลในการปฏิเสธลอต (ลด x เหลือ 60 ขยับไปข้างหน้า/ทางซ้าย)
         firstPage.drawText(data.rejectionReason || '', { x: 60, y: 690, size: textSize, font: customFont });
