@@ -40,18 +40,18 @@ app.post('/api/concessions', async (req, res) => {
         // ----------------- ตำแหน่งพิกัด (X, Y) -----------------
         const textSize = 14;
         
-        // 1. เลขที่เอกสาร (ปรับ Y เป็น 770 เพื่อขยับขึ้นบน)
-        firstPage.drawText(docNumber, { x: 470, y: 770, size: textSize, font: customFont });
+        // 1. เลขที่เอกสาร (ปรับ Y เป็น 775 เพื่อขยับขึ้นบนอีกนิด)
+        firstPage.drawText(docNumber, { x: 470, y: 775, size: textSize, font: customFont });
         
         // 2. ชื่อผลิตภัณฑ์ & จำนวน
         firstPage.drawText(data.productName || '', { x: 140, y: 742, size: textSize, font: customFont });
         firstPage.drawText(String(data.quantity || ''), { x: 460, y: 742, size: textSize, font: customFont });
         
-        // 3. Lot ผลิต 
+        // 3. Lot ผลิต (ขยายจุดตัดบรรทัดเป็น 50 ตัวอักษร เพื่อให้ชิดขอบมากขึ้นก่อนตัดลงมา)
         const lotText = data.lotNumber || '';
-        if (lotText.length > 35) {
-            firstPage.drawText(lotText.substring(0, 38), { x: 140, y: 730, size: 12, font: customFont });
-            firstPage.drawText(lotText.substring(38, 76), { x: 140, y: 715, size: 12, font: customFont });
+        if (lotText.length > 50) {
+            firstPage.drawText(lotText.substring(0, 50), { x: 140, y: 730, size: 12, font: customFont });
+            firstPage.drawText(lotText.substring(50, 100), { x: 140, y: 715, size: 12, font: customFont });
         } else {
             firstPage.drawText(lotText, { x: 140, y: 723, size: textSize, font: customFont });
         }
@@ -71,8 +71,8 @@ app.post('/api/concessions', async (req, res) => {
             let startY = 540;
             issueLines.forEach((line, index) => {
                 if (index < 8 && line.trim() !== '') {
-                    // ปรับ X เป็น 85 เพื่อขยับข้อความไปทางซ้าย (ชิดตัวเลข 1, 2, 3 มากขึ้น)
-                    firstPage.drawText(line.trim(), { x: 85, y: startY, size: textSize, font: customFont });
+                    // ปรับ X ลดลงเหลือ 70 เพื่อขยับชิดซ้ายหาตัวเลข 1, 2, 3 ให้มากขึ้น
+                    firstPage.drawText(line.trim(), { x: 70, y: startY, size: textSize, font: customFont });
                     startY -= 18;
                 }
             });
